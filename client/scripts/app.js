@@ -5,7 +5,6 @@ var ourMessage = {
   roomname: '4chan'
 };
 
-
 var app = {
   init: function() {
     this.addFriend();
@@ -22,6 +21,7 @@ var app = {
       data: JSON.stringify(message),
       contentType: 'application/json',
       success: function(data) {
+        debugger;
         console.log('chatterbox: Message sent');
       },
       error: function(data) {
@@ -41,8 +41,8 @@ var app = {
       // data: JSON.stringify(message),
       contentType: 'application/json',
       success: function(data) {
-        var results = data.results;
-        //appendData(results);
+        results = data.results;
+        appendData(results);
       },
       error: function(data) {
         console.error('chatterbox: Failed to receive message', data);
@@ -52,7 +52,7 @@ var app = {
   clearMessages: function() {
     $('#chats').children().remove();
   },
-  addMessage: function(message) {
+  addMessage: function(message, prependTo) {
     //Generate HTML String
     var genStr = "<div class='message'></div>";
     var unStr = message.username;
@@ -65,7 +65,11 @@ var app = {
     $message.append("<a href='#'>" + $un.text() + "</a>");
     $message.append("<p>" + $userText.text() + "</p>");
     $message.addClass('username');
-    $('#chats').append($message);
+    if(prependTo){
+      $('#chats').prepend($message);
+    } else {
+      $('#chats').append($message);
+    }
     //debugger;
   },
   addRoom: function(roomName) {
@@ -80,36 +84,74 @@ var app = {
       return true;
     });
   },
-  escapeHTML: function(string) {
-    return String(string).replace(/[&<>"'\/]/g, function (s) {
-      return entityMap[s];
-    });
-  },
   handleSubmit: function() {
     console.log('');
+  },
+  roomNames: {},
+  createChatroom: function() {
+    debugger;
+    var newChat = $('.roomSelect').val();
+    var newChatEsc = this.escapeRegExp(newChat);
+    this.send({username: 'na', text: 'na', roomname: newChatEsc});
+    this.addRoom(newChatEsc);
+  },
+  escapeRegExp: function(str) {
+    return str.replace(/[\&\<\>\"\'\ \`\!\@\$\%\(\)\ \=\+\{\}\[\ \]|]/g, "\\$&");
+  },
+  sendMessage: function() {
+    var newMessage = $('.inputText').val();
+    var newChatEsc = this.escapeRegExp(newMessage);
+
+    var user = prompt('What is your name?');
+    var newChat = $('#roomSelect').val();  
+    debugger;
+    var newChatRoomEsc = this.escapeRegExp(newChat);
+    var message = {username: user, text: newChatEsc, roomname:newChatRoomEsc};
+
+    this.send(message);
+    this.addMessage(message, true);
+  }
+};
+
+app.fetch();
+var appendData = function(results) {
+  
+  var genStr = "<div class='message'><h3></h3><p></p></div>";
+  var $message = $($.parseHTML(genStr));
+  for (var object of results) {
+    app.addMessage(object);
   }
 
+  for (var message of results) {
+    if (app.roomNames[message.roomname] === undefined) {
+      app.roomNames[message.roomname] = [message];
+    } else {
+      app.roomNames[message.roomname].push(message);
+    }
+  }
+  //Populate dropdown with every key in app.roomNames
+  for (var room in app.roomNames) {
+    if (room.roomname !== '') {
+      app.addRoom(room);
+    }
+  }
 };
-var entityMap = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': '&quot;',
-  "'": '&#39;',
-  "/": '&#x2F;'
-};
+
+$(document).ready(function() { 
+  $('#roomSelect').on('change', function(e) {
+    //Get selected item
+    var selectedVal = this.value;
+    app.clearMessages();
+    for (var roomMessage of app.roomNames[selectedVal]) {
+      app.addMessage(roomMessage);
+    }
+    //repopulate the page with relevant results
+  });
+  //debugger;
+  //$('.newRoom').on('click', console.log('dane'));
+});
 
 
 
 
-// var appendData = function(results) {
-  var genStr = "<div class='message'><h3>Test</h3><p></p></div>";
-  var $message = $($.parseHTML(genStr));
-//  // debugger;
-//   for (var message of results) {
-
-//     var finMessage = $.parseHTML($message);
-//     $('.messages').append($message);
-//   }
-// };
 

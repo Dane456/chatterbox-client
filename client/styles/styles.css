@@ -87,4 +87,38 @@ form input[type=text] {
     color: #fff;
     background-color: #0090da;
 }
+.message {
+    font-family: "Avenir", Times, sans-serif;
+    background: powderblue;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+.message a {
+    color: lightsalmon;
+    text-decoration: none;
+    font-weight: bold;
+}
+.inputText {
+    display: inline-block;
+    width: 100%;
+}
+.dropdown {
+    display: inline-block;
+    margin-bottom: 20px;
+}
+.wrapper {
+    width: 100%;
+}
 
+.wrapper2 {
+    width: 100%;
+}
+.submit {
+    display: inline-block;
+    float: right;
+}
+
+#roomSelect, .roomText, .newRoom {
+    width: 32%;
+}

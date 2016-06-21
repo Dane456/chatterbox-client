@@ -16,8 +16,15 @@
     <div id="main">
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
-      <select id="roomSelect" name="lobby"></select>
-      <div class="messages"></div>
+      <div class="wrapper">
+         <select id="roomSelect" name="lobby" class="dropdown"></select>
+         <input type="text" class="roomInput"></input>
+         <button class="newRoom" onclick="app.createChatroom()">Create Chatroom</button>
+      </div>
+      <div class="wrapper2">
+        <textarea type="text" class="inputText" rows="4" columns="70"></textarea>
+        <button type ="button" class="submit" onclick="app.sendMessage()">Submit Message</button>
+      </div>
     </div>
     <div id="chats"></div>
   </body>
