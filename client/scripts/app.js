@@ -21,7 +21,6 @@ var app = {
       data: JSON.stringify(message),
       contentType: 'application/json',
       success: function(data) {
-        debugger;
         console.log('chatterbox: Message sent');
       },
       error: function(data) {
@@ -64,7 +63,7 @@ var app = {
     var $message = $($.parseHTML(genStr));
     $message.append("<a href='#'>" + $un.text() + "</a>");
     $message.append("<p>" + $userText.text() + "</p>");
-    $message.addClass('username');
+    $message.addClass('message');
     if(prependTo){
       $('#chats').prepend($message);
     } else {
@@ -89,7 +88,7 @@ var app = {
   },
   roomNames: {},
   createChatroom: function() {
-    var newChat = $('.roomSelect').val();
+    var newChat = $('.roomInput').val();
     var newChatEsc = this.escapeRegExp(newChat);
     this.send({username: 'na', text: 'na', roomname: newChatEsc});
     this.addRoom(newChatEsc);
@@ -108,14 +107,15 @@ var app = {
 
     this.send(message);
     this.addMessage(message, true);
-  }
+  },
+  friends: {}
 };
 
 app.fetch();
 
 var appendData = function(results) {
   
-  var genStr = "<div class='message'><h3></h3><p></p></div>";
+  var genStr = "<div class='message'><h3 class='username'></h3><p></p></div>";
   var $message = $($.parseHTML(genStr));
   
   for (var message of results) {
@@ -137,32 +137,11 @@ var appendData = function(results) {
 
 };
 
-// {
-//   roomName1: [{
-//               message1:'blah',
-//               un: 'dude',
-//               room: 'kink.com'
-//             },
-//             {
-//               message2: 'dude',
-//               un: 'chocolaterain',
-//               room: 'cheeseplease'
-//             }],
-// roomName2: [{
-//               message1:'blah',
-//               un: 'dude',
-//               room: 'kink.com'
-//             },
-//             {
-//               message2: 'dude',
-//               un: 'chocolaterain',
-//               room: 'cheeseplease'
-//             }]
-// }
 
 var refresh = function() {
   location.reload();
 };
+
 
 $(document).ready(function() { 
   $('#roomSelect').on('change', function(e) {
@@ -174,6 +153,17 @@ $(document).ready(function() {
       app.addMessage(roomMessage);
     }
     //repopulate the page with relevant results
+  });
+  $('body').on('click', 'a', function(e) {
+    //debugger;
+    e.preventDefault();
+    var text = $(this).text();
+    app.friends[text] = text;
+    $('a').each(function() {
+      if (app.friends[$(this).text()]) {
+        $(this).css('font-weight', 'bold');
+      }
+    });
   });
   //debugger;
   //$('.newRoom').on('click', console.log('dane'));

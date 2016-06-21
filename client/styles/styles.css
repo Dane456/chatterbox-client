@@ -65,7 +65,7 @@ form input[type=text] {
     background-color: #eee;
 }
 
-.chat .username {
+.chat .message {
     font-weight: 800;
 }
 
@@ -97,7 +97,6 @@ form input[type=text] {
 .message a {
     color: lightsalmon;
     text-decoration: none;
-    font-weight: bold;
 }
 .inputText {
     display: inline-block;
@@ -125,4 +124,7 @@ form input[type=text] {
 .refresh {
     margin-top: 20px;
     width: 100%;
+}
+.username{
+    font-weight: normal;
 }
