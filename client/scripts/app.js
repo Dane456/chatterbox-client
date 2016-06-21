@@ -89,7 +89,6 @@ var app = {
   },
   roomNames: {},
   createChatroom: function() {
-    debugger;
     var newChat = $('.roomSelect').val();
     var newChatEsc = this.escapeRegExp(newChat);
     this.send({username: 'na', text: 'na', roomname: newChatEsc});
@@ -104,7 +103,6 @@ var app = {
 
     var user = prompt('What is your name?');
     var newChat = $('#roomSelect').val();  
-    debugger;
     var newChatRoomEsc = this.escapeRegExp(newChat);
     var message = {username: user, text: newChatEsc, roomname:newChatRoomEsc};
 
@@ -114,27 +112,56 @@ var app = {
 };
 
 app.fetch();
+
 var appendData = function(results) {
   
   var genStr = "<div class='message'><h3></h3><p></p></div>";
   var $message = $($.parseHTML(genStr));
-  for (var object of results) {
-    app.addMessage(object);
-  }
-
+  
   for (var message of results) {
+    //if roomName is not defined add message to new room
     if (app.roomNames[message.roomname] === undefined) {
       app.roomNames[message.roomname] = [message];
-    } else {
+      app.addRoom(message.roomname);
+    }
+    //only append if message does not exist 
+    else {
       app.roomNames[message.roomname].push(message);
     }
   }
-  //Populate dropdown with every key in app.roomNames
-  for (var room in app.roomNames) {
-    if (room.roomname !== '') {
-      app.addRoom(room);
+  for (var object of results) {
+    if (object.roomname === $('#roomSelect').val()) {
+      app.addMessage(object); 
     }
   }
+
+};
+
+// {
+//   roomName1: [{
+//               message1:'blah',
+//               un: 'dude',
+//               room: 'kink.com'
+//             },
+//             {
+//               message2: 'dude',
+//               un: 'chocolaterain',
+//               room: 'cheeseplease'
+//             }],
+// roomName2: [{
+//               message1:'blah',
+//               un: 'dude',
+//               room: 'kink.com'
+//             },
+//             {
+//               message2: 'dude',
+//               un: 'chocolaterain',
+//               room: 'cheeseplease'
+//             }]
+// }
+
+var refresh = function() {
+  location.reload();
 };
 
 $(document).ready(function() { 
@@ -142,6 +169,7 @@ $(document).ready(function() {
     //Get selected item
     var selectedVal = this.value;
     app.clearMessages();
+    // debugger;
     for (var roomMessage of app.roomNames[selectedVal]) {
       app.addMessage(roomMessage);
     }

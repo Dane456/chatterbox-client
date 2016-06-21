@@ -122,3 +122,7 @@ form input[type=text] {
 #roomSelect, .roomText, .newRoom {
     width: 32%;
 }
+.refresh {
+    margin-top: 20px;
+    width: 100%;
+}
