@@ -29,7 +29,8 @@ var app = {
     });
   },
   server: 'https://api.parse.com/1/classes/messages',
-  fetch: function() {
+  fetch: function(searchString) {
+    console.log('Searching with string: ' + searchString);
     $.ajax({
       url: this.server,
       headers: {
@@ -39,9 +40,12 @@ var app = {
       type: 'GET',
       // data: JSON.stringify(message),
       contentType: 'application/json',
+      data: searchString,
+      //data: "'" + searchString + "'",
       success: function(data) {
+        console.log('chatterbox: Messages received');
         results = data.results;
-        appendData(results);
+        parseData(results);
       },
       error: function(data) {
         console.error('chatterbox: Failed to receive message', data);
@@ -69,10 +73,9 @@ var app = {
     } else {
       $('#chats').append($message);
     }
-    //debugger;
   },
   addRoom: function(roomName) {
-    var roomString = "<option></option>";
+    var roomString = "<option/>";
     var $room = $($.parseHTML(roomString));
     $room.attr('value', roomName);
     $room.text(roomName);
@@ -87,6 +90,9 @@ var app = {
     console.log('');
   },
   roomNames: {},
+  getRoomNames: function() {
+    this.fetch('where={"roomname":{"$exists":true}}');
+  },
   createChatroom: function() {
     var newChat = $('.roomInput').val();
     var newChatEsc = this.escapeRegExp(newChat);
@@ -108,54 +114,51 @@ var app = {
     this.send(message);
     this.addMessage(message, true);
   },
-  friends: {}
+  friends: {},
 };
 
-app.fetch();
-
+var parseData = function(results) {
+  if (Object.keys(app.roomNames).length === 0) {
+    for (message of results) {
+      console.log(message.roomname);
+      app.roomNames[message.roomname] = message.roomname;
+    }
+  } else {
+    appendData(results);
+  }
+};
 var appendData = function(results) {
   
-  var genStr = "<div class='message'><h3 class='username'></h3><p></p></div>";
-  var $message = $($.parseHTML(genStr));
-  
-  for (var message of results) {
-    //if roomName is not defined add message to new room
-    if (app.roomNames[message.roomname] === undefined) {
-      app.roomNames[message.roomname] = [message];
-      app.addRoom(message.roomname);
-    }
-    //only append if message does not exist 
-    else {
-      app.roomNames[message.roomname].push(message);
-    }
-  }
   for (var object of results) {
-    if (object.roomname === $('#roomSelect').val()) {
-      app.addMessage(object); 
-    }
+    console.log('Posting message with roomname: ' + object.roomname);
+    app.addMessage(object);
+    var roomNamesArray = Object.keys(app.roomNames);
+    if (roomNamesArray.length !== $('#roomSelect').children().length) {
+      $('#roomSelect').empty();
+      roomNamesArray.forEach(function(room) {
+        app.addRoom(room);
+      });
+    } 
   }
-
 };
-
 
 var refresh = function() {
   location.reload();
 };
 
-
 $(document).ready(function() { 
-  $('#roomSelect').on('change', function(e) {
-    //Get selected item
+  // app.fetch("where={'roomname': 'lobby'}");
+  app.getRoomNames();
+  app.fetch('where={"roomname":"lobby"}');
+  $('#roomSelect').on('change', function() {
     var selectedVal = this.value;
     app.clearMessages();
-    // debugger;
-    for (var roomMessage of app.roomNames[selectedVal]) {
-      app.addMessage(roomMessage);
-    }
-    //repopulate the page with relevant results
+    app.fetch('where={"roomname":' + '"' + $(this).val() + '"' + '}');
+    // for (var roomMessage of app.roomNames[selectedVal]) {
+    //   app.addMessage(roomMessage);
+    // }
   });
   $('body').on('click', 'a', function(e) {
-    //debugger;
     e.preventDefault();
     var text = $(this).text();
     app.friends[text] = text;
@@ -165,8 +168,6 @@ $(document).ready(function() {
       }
     });
   });
-  //debugger;
-  //$('.newRoom').on('click', console.log('dane'));
 });
 
 
